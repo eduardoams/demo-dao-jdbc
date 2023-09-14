@@ -1,22 +1,23 @@
 package application;
 
-import java.util.Date;
+import java.util.Scanner;
 
 import model.dao.DaoFactory;
 import model.dao.SellerDao;
-import model.entities.Department;
 import model.entities.Seller;
 
 public class Program {
 
 	public static void main(String[] args) {
 
-		Department d = new Department(1, "Books");
-		System.out.println(d);
+		Scanner sc = new Scanner(System.in);
 		
-		Seller s = new Seller(21, "Bob", "bob@gmail.com", new Date(), 3000.00, d);
-		System.out.println(s);
+		SellerDao sellerDao = DaoFactory.createSellerDao();
 		
-		SellerDao sellerDao = DaoFactory.createSellerDao();		
+		System.out.print("Enter your seller ID: ");
+		int id = sc.nextInt();
+		Seller seller = sellerDao.findById(id);
+		
+		System.out.println(seller);
 	}
 }
