@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,8 +30,40 @@ public class SellerDaoJDBC implements SellerDao {
 
 	@Override
 	public void insert(Seller obj) {
-		// TODO Auto-generated method stub
-
+		
+		PreparedStatement st = null;
+		
+		try {
+			
+			String query = "INSERT INTO seller (Name, Email, BirthDate, BaseSalary, DepartmentId) "
+					+ "VALUES (?, ?, ?, ?, ?)";
+			
+			st = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			
+			st.setString(1, obj.getName());
+			st.setString(2, obj.getEmail());
+			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
+			st.setDouble(4, obj.getBaseSalary());
+			st.setInt(5, obj.getDepartment().getId());
+			
+			int rowsAffected = st.executeUpdate();
+			
+			if (rowsAffected > 0) {
+				ResultSet rs = st.getGeneratedKeys();				
+				if (rs.next()) obj.setId(rs.getInt(1));
+				DB.closeResultSet(rs);
+			}
+			else {
+				throw new DbException("Unexpected error! No rows affected!");
+			}
+			
+		}
+		catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+		}
 	}
 
 	@Override
