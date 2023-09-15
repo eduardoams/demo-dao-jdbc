@@ -1,7 +1,6 @@
 package application;
 
 import java.util.List;
-import java.util.Scanner;
 
 import model.dao.DaoFactory;
 import model.dao.SellerDao;
@@ -11,8 +10,6 @@ import model.entities.Seller;
 public class Program {
 
 	public static void main(String[] args) {
-
-		Scanner sc = new Scanner(System.in);
 		
 		SellerDao sellerDao = DaoFactory.createSellerDao();
 		
@@ -20,8 +17,12 @@ public class Program {
 		System.out.println(sellerDao.findById(3));
 		
 		System.out.println("\n=== TEST 2: seller findByDepartment ===");
-		List<Seller> list = sellerDao.findByDepartment(new Department(2, null));
-		list.forEach(System.out::println);
+		List<Seller> findByDepartment = sellerDao.findByDepartment(new Department(2, null));
+		findByDepartment.forEach(System.out::println);
+		
+		System.out.println("\n=== TEST 3: seller findAll ===");
+		List<Seller> findAll = sellerDao.findAll();
+		findAll.forEach(System.out::println);
 		
 	}
 }

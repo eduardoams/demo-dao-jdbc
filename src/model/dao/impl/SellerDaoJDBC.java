@@ -81,8 +81,45 @@ public class SellerDaoJDBC implements SellerDao {
 
 	@Override
 	public List<Seller> findAll() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		
+		try {
+						
+			String query = "SELECT s.*, d.Name AS DepartmentName FROM seller AS s "
+					+ "INNER JOIN department AS d ON s.DepartmentId = d.id "
+					+ "ORDER BY s.Name";
+			st = conn.prepareStatement(query);
+			
+			rs = st.executeQuery();
+			
+			List<Seller> list = new ArrayList<>();
+			Map<Integer, Department> map = new HashMap<>();
+			
+			while (rs.next()) {
+				
+				Department dep = map.get(rs.getInt("DepartmentId"));
+				
+				if (dep == null) {
+					dep = instantiateDepartment(rs);
+					map.put(rs.getInt("DepartmentId"), dep);
+				}
+				
+				list.add(instantateSeller(rs, dep));
+				
+			}
+			
+			return list;
+		}
+		catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+			DB.closeResultSet(rs);
+		}
+		
 	}
 
 	@Override
@@ -131,11 +168,13 @@ public class SellerDaoJDBC implements SellerDao {
 	}
 	
 	private Seller instantateSeller(ResultSet rs, Department department) throws SQLException {
+		
 		Integer sellerId = rs.getInt("Id");
 		String name = rs.getString("Name");
 		String email = rs.getString("Email");
 		Double baseSalary = rs.getDouble("BaseSalary");
 		Date birthDate = rs.getDate("BirthDate");
+		
 		return new Seller(sellerId, name, email, birthDate, baseSalary, department);
 	}
 
