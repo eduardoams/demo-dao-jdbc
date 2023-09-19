@@ -20,7 +20,6 @@ import model.entities.Seller;
 
 public class SellerDaoJDBC implements SellerDao {
 	
-
 	public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 	private Connection conn;
 
@@ -34,7 +33,6 @@ public class SellerDaoJDBC implements SellerDao {
 		PreparedStatement st = null;
 		
 		try {
-			
 			String query = "INSERT INTO seller (Name, Email, BirthDate, BaseSalary, DepartmentId) "
 					+ "VALUES (?, ?, ?, ?, ?)";			
 			st = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -51,18 +49,15 @@ public class SellerDaoJDBC implements SellerDao {
 				ResultSet rs = st.getGeneratedKeys();				
 				if (rs.next()) obj.setId(rs.getInt(1));
 				DB.closeResultSet(rs);
-			}
-			else {
+			} else {
 				throw new DbException("Unexpected error! No rows affected!");
 			}
-			
-		}
-		catch (SQLException e) {
+		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
-		}
-		finally {
+		} finally {
 			DB.closeStatement(st);
 		}
+		
 	}
 
 	@Override
@@ -71,8 +66,12 @@ public class SellerDaoJDBC implements SellerDao {
 		PreparedStatement st = null;
 		
 		try {
-			
-			String query = "UPDATE seller SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? "
+			String query = "UPDATE seller SET "
+					+ "Name = ?, "
+					+ "Email = ?, "
+					+ "BirthDate = ?, "
+					+ "BaseSalary = ?, "
+					+ "DepartmentId = ? "
 					+ "WHERE Id = ?";
 			st = conn.prepareStatement(query);
 			
@@ -84,12 +83,9 @@ public class SellerDaoJDBC implements SellerDao {
 			st.setInt(6, obj.getId());
 			
 			st.executeUpdate();
-				
-		}
-		catch (SQLException e) {
+		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
-		}
-		finally {
+		} finally {
 			DB.closeStatement(st);
 		}
 	
@@ -101,21 +97,22 @@ public class SellerDaoJDBC implements SellerDao {
 		PreparedStatement st = null;
 		
 		try {
-			
 			String query = "DELETE FROM seller WHERE Id = ?";
-			st = conn.prepareStatement(query);
+			st = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 			
 			st.setInt(1, id);
 			
-			st.executeUpdate();
-				
-		}
-		catch (SQLException e) {
+			int rowsAffected = st.executeUpdate();
+			
+			if (rowsAffected == 0) {
+				throw new DbException("ID entered does not exist");
+			}	
+		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
-		}
-		finally {
+		} finally {
 			DB.closeStatement(st);
 		}
+		
 	}
 
 	@Override
@@ -125,7 +122,6 @@ public class SellerDaoJDBC implements SellerDao {
 		ResultSet rs = null;
 
 		try {
-
 			String query = "SELECT d.name AS DepartmentName, s.* FROM seller AS s "
 					+ "INNER JOIN department AS d ON s.departmentId = d.id "
 					+ "WHERE s.id = ?";
@@ -141,11 +137,9 @@ public class SellerDaoJDBC implements SellerDao {
 			}
 			
 			return null;
-		}
-		catch (SQLException e) {
+		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
-		}
-		finally {
+		} finally {
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
 		}
@@ -159,10 +153,9 @@ public class SellerDaoJDBC implements SellerDao {
 		ResultSet rs = null;
 		
 		try {
-						
 			String query = "SELECT s.*, d.Name AS DepartmentName FROM seller AS s "
 					+ "INNER JOIN department AS d ON s.DepartmentId = d.id "
-					+ "ORDER BY s.Name";
+					+ "ORDER BY s.Id";
 			st = conn.prepareStatement(query);
 			
 			rs = st.executeQuery();
@@ -184,11 +177,9 @@ public class SellerDaoJDBC implements SellerDao {
 			}
 			
 			return list;
-		}
-		catch (SQLException e) {
+		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
-		}
-		finally {
+		} finally {
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
 		}
@@ -201,8 +192,7 @@ public class SellerDaoJDBC implements SellerDao {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		
-		try {
-						
+		try {	
 			String query = "SELECT s.*, d.Name AS DepartmentName FROM seller AS s "
 					+ "INNER JOIN department AS d ON s.DepartmentId = d.id "
 					+ "WHERE DepartmentId = ? "
@@ -230,11 +220,9 @@ public class SellerDaoJDBC implements SellerDao {
 			}
 			
 			return list;
-		}
-		catch (SQLException e) {
+		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
-		}
-		finally {
+		} finally {
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
 		}
